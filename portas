@@ -1,0 +1,41 @@
+module Ports = 
+
+    type TBit = int //pode escrever Zero | Um
+
+    let p_nand (a : TBit) (b: TBit) : TBit = 
+        match a, b with
+        | 1, 1 -> 0
+        | 0, 1
+        | 1, 0 
+        | 0, 0 -> 1
+        | _, _ -> failwith "valor diferente de 0 ou 1 (bit)"
+
+    let p_not a = p_nand a a
+       
+    let p_and a b = p_nand (p_nand a b) (p_nand a b)
+    //let p_and a b = p_not (p_nand a b) 
+
+    let p_and3 a b c = p_and (p_and a b) c
+
+    let p_or a b = p_nand(p_not a) (p_not b)
+    //let p_or a b = p_nand (p_nand a a) (p_nand b b)
+
+    let p_nor a b = p_not(p_or a b)
+    //let p_nor a b = p_nand(p_nand (p_nand a a) (p_nand b b)) (p_nand (p_nand a a) (p_nand b b))
+
+    let p_xor a b = p_or (p_and a (p_not b)) (p_and b (p_not a)) 
+    //let p_xor a b = 
+    //p_and a (p_not b) = p_nand (p_nand a p_nand b b) (p_nand a p_nand b b)  
+    //not b = p_nand b b  
+    //not a = p_nand a a
+
+    let p_nxor a b = p_not (p_xor a b)
+    
+
+    let mux2 a b ctr = p_or (p_and a (p_not ctr)) (p_and b ctr) 
+    
+    let demux2 I ctr = (p_and I (p_not ctr), p_and I ctr)
+
+    let mux4 i0 i1 i2 i3 a b = mux2 (mux2 i0 i1 b) (mux2 i2 i3 b) a
+
+    let demux4 I a b = (
